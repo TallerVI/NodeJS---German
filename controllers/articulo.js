@@ -3,6 +3,15 @@
  * GET users listing.
  */
 
+ /**
+ * Articulos Propiedades
+ * articuloid 
+ * descripcion NOTNULL
+ * fechacreacion TIMESTAMP
+ * maquinaestadoid NOTNULL
+ * tipoarticuloid NOTNULL
+ */
+
 /**GERMAN
  * Private Attributes
  * */
@@ -39,30 +48,32 @@ var findById 		= function(request, response){
 	});
 };
 var create 			= function(request, response){
-	sequelize.transaction(function(transaction){
-		return Promise.all([
-		     articulo.create({ 
-		    	 descripcion : request.body.descripcion,
-		    	 maquinaestadoid : request.body.maquinaestadoid,
-		    	 tipoarticuloid : request.body.tipoarticuloid
-		     }, {transaction : transaction})
-		]);
-	}).then(function(articulo){
-		articulo.forEach(function(item){
-			item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-			item['dataValues'].tipoarticulo = "/tipoarticulo/" + item['dataValues'].tipoarticuloid;
-			delete item['dataValues'].maquinaestadoid;
-			delete item['dataValues'].tipoarticuloid;
-		})
-		response.jsonp(articulo);
-	}).catch(function(error){
-		response.jsonp({response : error});
-	});
+	var a = request.body;
+	if("descripcion" in a && "maquinaestadoid" in a && "tipoarticuloid" in a){
+		sequelize.transaction(function(transaction){	
+			return Promise.all([
+		    articulo.create({ 
+		    	descripcion : a.descripcion,
+		    	maquinaestadoid : a.maquinaestadoid,
+		    	tipoarticuloid : a.tipoarticuloid
+		     	}, {transaction : transaction})
+			]);
+		}).then(function(articulo){
+			articulo.forEach(function(item){
+				item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
+				item['dataValues'].tipoarticulo = "/tipoarticulo/" + item['dataValues'].tipoarticuloid;
+				delete item['dataValues'].maquinaestadoid;
+				delete item['dataValues'].tipoarticuloid;
+			})
+			response.jsonp(articulo);
+		}).catch(function(error){
+			response.status(500).send({response : error});
+		});
+	} else {
+		response.status(400).send({ error : "Falta un dato requerido"});
+	}
 };
 
-var findStateMachineByArticle = function(request, response){
-	
-};
 
 /**
  * Export functions

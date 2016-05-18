@@ -57,6 +57,30 @@ var create 			= function(request, response){
 		response.status(400).send({ error : "Falta uno o algunos de los datos requeridos", datos : a });
 	}
 };
+var updateAll 		= function(request, response){
+	response.status(500).jsonp({ response : "Implementar updateAll" });
+};
+var updatePart 		= function(request, response){
+	response.status(500).jsonp({ response : "Implementar updatePart" });
+};
+var deleteById 		= function(request, response){
+	sequelize.transaction(
+	).then(function(transaction){
+		mesa.destroy(
+			{ where : { mesaid : request.params.mesaid }, transaction : transaction }
+		).then(function( rowdeleted ){
+			if(rowdeleted != request.params.mesaid ){
+				transaction.rollback();
+				response.status(500).jsonp({ response : "No se ha podido eliminar el mesa" });
+			} else {
+				transaction.commit();
+				response.status(200).jsonp([{ mesa : "/mesa/" + request.params.mesaid }]);
+			}
+		});
+	}).catch(function(error){
+		response.status(500).jsonp(error);
+	});
+};
 
 /**
  * Export functions
@@ -65,3 +89,6 @@ var create 			= function(request, response){
 exports.all 		= all;
 exports.findById 	= findById;
 exports.create 		= create;
+exports.updateAll 	= updateAll;
+exports.updatePart 	= updatePart;
+exports.deleteById 	= deleteById;

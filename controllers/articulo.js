@@ -46,7 +46,8 @@ var create 			= function(request, response){
 	    articulo.create({ 
 	    	descripcion : a.descripcion,
 	    	maquinaestadoid : a.maquinaestadoid,
-	    	tipoarticuloid : a.tipoarticuloid
+	    	tipoarticuloid : a.tipoarticuloid,
+	    	precio : a.precio
 	     	}, {transaction : transaction})
 		]);
 	}).then(function(articulos){

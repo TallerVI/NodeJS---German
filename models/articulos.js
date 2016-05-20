@@ -32,6 +32,10 @@ module.exports = function(sequelize, DataTypes) {
         model: 'tiposarticulo',
         key: 'tipoarticuloid'
       }
+    },
+    precio: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
     }
   }, {
     tableName: 'articulos',

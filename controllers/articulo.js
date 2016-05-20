@@ -22,56 +22,43 @@ var articulo		= sequelize.import("../models/articulos");
  * Private Functions 
  * */
 var all 			= function(request, response){
-	articulo.findAll().then(function(articulo){
-		articulo.forEach(function(item){
-			item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-			item['dataValues'].tipoarticulo = "/tipoarticulo/" + item['dataValues'].tipoarticuloid;
-			delete item['dataValues'].maquinaestadoid;
-			delete item['dataValues'].tipoarticuloid;
-		})
-		response.jsonp(articulo);
+	articulo.findAll().then(function(articulos){
+		if(articulos.length == 0){
+			response.status(400).send({ error : 'Recursos no encontrados' });
+		} else {
+			response.status(200).jsonp(articulos);	
+		}
 	});
 };
 var findById 		= function(request, response){
-	articulo.findAll({
-		where : {
-			articuloid :  request.params.articuloid
+	articulo.findById(request.params.articuloid).then(function(articulo){
+		if(articulo == null){
+			response.status(400).send({ error : 'Recurso no encontrado' });
+		} else {
+			response.status(200).send(articulo);	
 		}
-	}).then(function(articulo){
-		articulo.forEach(function(item){
-			item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-			item['dataValues'].tipoarticulo = "/tipoarticulo/" + item['dataValues'].tipoarticuloid;
-			delete item['dataValues'].maquinaestadoid;
-			delete item['dataValues'].tipoarticuloid;
-		})
-		response.jsonp(articulo);
 	});
 };
 var create 			= function(request, response){
 	var a = request.body;
-	if("descripcion" in a && "maquinaestadoid" in a && "tipoarticuloid" in a){
-		sequelize.transaction(function(transaction){	
-			return Promise.all([
-		    articulo.create({ 
-		    	descripcion : a.descripcion,
-		    	maquinaestadoid : a.maquinaestadoid,
-		    	tipoarticuloid : a.tipoarticuloid
-		     	}, {transaction : transaction})
-			]);
-		}).then(function(articulo){
-			articulo.forEach(function(item){
-				item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-				item['dataValues'].tipoarticulo = "/tipoarticulo/" + item['dataValues'].tipoarticuloid;
-				delete item['dataValues'].maquinaestadoid;
-				delete item['dataValues'].tipoarticuloid;
-			})
-			response.jsonp(articulo);
-		}).catch(function(error){
-			response.status(500).send({response : error});
-		});
-	} else {
-		response.status(400).send({ error : "Falta un dato requerido"});
-	}
+	sequelize.transaction(function(transaction){	
+		return Promise.all([
+	    articulo.create({ 
+	    	descripcion : a.descripcion,
+	    	maquinaestadoid : a.maquinaestadoid,
+	    	tipoarticuloid : a.tipoarticuloid
+	     	}, {transaction : transaction})
+		]);
+	}).then(function(articulos){
+		if(articulos.length == 0){
+			response.status(500).send({ error : 'Recurso no creado' });
+		} else {
+			var articulo = articulos.pop();
+			response.status(200).jsonp(articulo);	
+		}
+	}).catch(function(error){
+		response.status(500).send({response : error});
+	});
 };
 var updateAll 		= function(request, response){
 	response.status(500).jsonp({ response : "Implementar updateAll" });
@@ -85,7 +72,7 @@ var deleteById 		= function(request, response){
 		articulo.destroy(
 			{ where : { articuloid : request.params.articuloid }, transaction : transaction }
 		).then(function( rowdeleted ){
-			if(rowdeleted != request.params.articuloid ){
+			if( rowdeleted == 0 ){
 				transaction.rollback();
 				response.status(500).jsonp({ response : "No se ha podido eliminar el articulo" });
 			} else {

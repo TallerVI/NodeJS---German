@@ -57,7 +57,7 @@ var deleteById 		= function(request, response){
 		tipoarticulo.destroy(
 			{ where : { tipoarticuloid : request.params.tipoarticuloid }, transaction : transaction }
 		).then(function( rowdeleted ){
-			if(rowdeleted != request.params.tipoarticuloid ){
+			if( rowdeleted == 0 ){
 				transaction.rollback();
 				response.status(500).jsonp({ response : "No se ha podido eliminar el tipoarticulo" });
 			} else {

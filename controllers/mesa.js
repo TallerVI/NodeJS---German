@@ -69,7 +69,7 @@ var deleteById 		= function(request, response){
 		mesa.destroy(
 			{ where : { mesaid : request.params.mesaid }, transaction : transaction }
 		).then(function( rowdeleted ){
-			if(rowdeleted != request.params.mesaid ){
+			if( rowdeleted == 0 ){
 				transaction.rollback();
 				response.status(500).jsonp({ response : "No se ha podido eliminar el mesa" });
 			} else {

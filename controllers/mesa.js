@@ -58,7 +58,31 @@ var create 			= function(request, response){
 	}
 };
 var updateAll 		= function(request, response){
-	response.status(500).jsonp({ response : "Implementar updateAll" });
+	var a = request.body;
+	sequelize.transaction(
+	).then(function(transaction){
+		mesa.update({ 
+		    	descripcion : request.body.descripcion,
+		    	maquinaestadoid : request.body.maquinaestadoid
+		    },
+			{ where : { mesaid : request.body.mesaid } }, 
+			{ transaction : transaction }
+		).then(function( rowUpdated ){
+			if(rowUpdated.pop() == 0){
+				transaction.rollback();
+				response.status(500).jsonp({ response : "No se ha podido actualizar mesa" });
+			} else {
+				transaction.commit();
+				mesa.findById(request.body.mesaid).then(function(mesa){
+					mesa['dataValues'].maquinaestado = "/maquinaestado/" + mesa['dataValues'].maquinaestadoid;
+					delete mesa['dataValues'].maquinaestadoid;
+					response.status(200).jsonp(mesa);
+				});
+			}
+		});
+	}).catch(function(error){
+		response.status(500).jsonp(error);
+	});
 };
 var updatePart 		= function(request, response){
 	response.status(500).jsonp({ response : "Implementar updatePart" });

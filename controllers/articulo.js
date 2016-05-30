@@ -17,15 +17,17 @@
  * */
 var sequelize		= require ("../app").get("sequelize");
 var articulo		= sequelize.import("../models/articulos");
+var host			= require ("./host");
 
 /** 
  * Private Functions 
  * */
 var all 			= function(request, response){
+	var h = host.getHost(request, response);
 	articulo.findAll().then(function(articulos){
 		articulos.forEach(function(articulo){
-			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].maquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 		});
@@ -34,12 +36,13 @@ var all 			= function(request, response){
 };
 
 var findById 		= function(request, response){
+	var h = host.getHost(request, response);
 	articulo.findById(request.params.articuloid).then(function(articulo){
 		if(articulo == null){
 			response.status(400).send({ error : 'Recurso no encontrado' });
 		} else {
-			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].maquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 			response.status(200).send(articulo);	
@@ -48,6 +51,7 @@ var findById 		= function(request, response){
 };
 
 var create 			= function(request, response){
+	var h = host.getHost(request, response);
 	var a = request.body;
 	sequelize.transaction(function(transaction){	
 		return Promise.all([
@@ -63,8 +67,8 @@ var create 			= function(request, response){
 			response.status(500).send({ error : 'Recurso no creado' });
 		} else {
 			var articulo = articulos.pop();
-			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
-			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
+			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].estadmaquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 			response.status(200).jsonp(articulo);	
@@ -74,6 +78,7 @@ var create 			= function(request, response){
 	});
 };
 var updateAll 		= function(request, response){
+	var h = host.getHost(request, response);
 	var a = request.body;
 	sequelize.transaction(
 	).then(function(transaction){
@@ -92,8 +97,8 @@ var updateAll 		= function(request, response){
 			} else {
 				transaction.commit();
 				articulo.findById(request.body.articuloid).then(function(articulo){
-					articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
-					articulo['dataValues'].funcion = "/tipoarticulo/" + articulo['dataValues'].funcionid;
+					articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
+					articulo['dataValues'].funcion = h + "/tipoarticulo/" + articulo['dataValues'].funcionid;
 					delete articulo['dataValues'].estadoid;
 					delete articulo['dataValues'].funcionid;
 					response.status(200).jsonp(articulo);
@@ -105,9 +110,11 @@ var updateAll 		= function(request, response){
 	});
 };
 var updatePart 		= function(request, response){
+	var h = host.getHost(request, response);
 	response.status(500).jsonp({ response : "Implementar updatePart" });
 };
 var deleteById 		= function(request, response){
+	var h = host.getHost(request, response);
 	sequelize.transaction(
 	).then(function(transaction){
 		articulo.destroy(
@@ -126,20 +133,26 @@ var deleteById 		= function(request, response){
 	});
 };
 var findByTipoArticulo = function(request, response){
+	var h = host.getHost(request, response);
 	articulo.findAll({
 		where : {
 			tipoarticuloid : request.params.tipoarticuloid
 		}
 	}).then(function(articulos){
 		articulos.forEach(function(articulo){
-			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].maquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 		});
 		response.status(200).jsonp(articulos);
 	});
 };
+
+/*
+ * 
+ *
+ */
 /**
  * Export functions
  * 

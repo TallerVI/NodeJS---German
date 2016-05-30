@@ -8,31 +8,35 @@
  * */
 var sequelize		= require ("../app").get("sequelize");
 var tipoarticulo		= sequelize.import("../models/tiposarticulo");
+var host			= require ("./host");
 
 /** 
  * Private Functions 
  * */
 var all 			= function(request, response){
+	var h = host.getHost(request, response);
 	tipoarticulo.findAll().then(function(tipoarticulos){
 		tipoarticulos.forEach(function(tipoarticulo){
-			tipoarticulo['dataValues'].articulo = "/tipoarticulo/" + tipoarticulo['dataValues'].tipoarticuloid + '/articulo';
+			tipoarticulo['dataValues'].articulo = h + "/tipoarticulo/" + tipoarticulo['dataValues'].tipoarticuloid + '/articulo';
 		});
 		response.jsonp(tipoarticulos);
 	});
 };
 var findById 		= function(request, response){
+	var h = host.getHost(request, response);
 	tipoarticulo.findAll({
 		where : {
 			tipoarticuloid :  request.params.tipoarticuloid
 		}
 	}).then(function(tipoarticulos){
 		tipoarticulos.forEach(function(tipoarticulo){
-			tipoarticulo['dataValues'].articulo = "/tipoarticulo/" + tipoarticulo['dataValues'].tipoarticuloid + '/articulo';
+			tipoarticulo['dataValues'].articulo = h + "/tipoarticulo/" + tipoarticulo['dataValues'].tipoarticuloid + '/articulo';
 		});
 		response.jsonp(tipoarticulos);
 	});
 };
 var create 			= function(request, response){
+	var h = host.getHost(request, response);
 	var a = request.body;
 	if("descripcion" in a && "cocina" in a){
 		sequelize.transaction(function(transaction){
@@ -52,6 +56,7 @@ var create 			= function(request, response){
 	}
 };
 var updateAll 		= function(request, response){
+	var h = host.getHost(request, response);
 	sequelize.transaction(
 	).then(function(transaction){
 		tipoarticulo.update({ 
@@ -76,9 +81,11 @@ var updateAll 		= function(request, response){
 	});
 };
 var updatePart 		= function(request, response){
+	var h = host.getHost(request, response);
 	response.status(500).jsonp({ response : "Implementar updatePart" });
 };
 var deleteById 		= function(request, response){
+	var h = host.getHost(request, response);
 	sequelize.transaction(
 	).then(function(transaction){
 		tipoarticulo.destroy(
@@ -89,7 +96,7 @@ var deleteById 		= function(request, response){
 				response.status(500).jsonp({ response : "No se ha podido eliminar el tipoarticulo" });
 			} else {
 				transaction.commit();
-				response.status(200).jsonp([{ tipoarticulo : "/tipoarticulo/" + request.params.tipoarticuloid }]);
+				response.status(200).jsonp([{ tipoarticulo : h + "/tipoarticulo/" + request.params.tipoarticuloid }]);
 			}
 		});
 	}).catch(function(error){

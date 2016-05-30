@@ -13,12 +13,13 @@ var mesa		= sequelize.import("../models/mesas");
  * Private Functions 
  * */
 var all 			= function(request, response){
-	mesa.findAll().then(function(mesa){
-		mesa.forEach(function(item){
-			item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-			delete item['dataValues'].maquinaestadoid;
+	mesa.findAll().then(function(mesas){
+		mesas.forEach(function(mesa){
+			mesa['dataValues'].pedido = "/mesa/" + mesa['dataValues'].mesaid + "/pedido";
+			mesa['dataValues'].maquinaestado = "/maquinaestado/" + mesa['dataValues'].maquinaestadoid;
+			delete mesa['dataValues'].maquinaestadoid;
 		})
-		response.jsonp(mesa);
+		response.jsonp(mesas);
 	});
 };
 var findById 		= function(request, response){
@@ -26,12 +27,13 @@ var findById 		= function(request, response){
 		where : {
 			mesaid :  request.params.mesaid 
 		}
-	}).then(function(mesa){
-		mesa.forEach(function(item){
-			item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-			delete item['dataValues'].maquinaestadoid;
+	}).then(function(mesas){
+		mesas.forEach(function(mesa){
+			mesa['dataValues'].pedido = "/mesa/" + mesa['dataValues'].mesaid + "/pedido";
+			mesa['dataValues'].maquinaestado = "/maquinaestado/" + mesa['dataValues'].maquinaestadoid;
+			delete mesa['dataValues'].maquinaestadoid;
 		})
-		response.jsonp(mesa);
+		response.jsonp(mesas);
 	});
 };
 var create 			= function(request, response){
@@ -45,11 +47,12 @@ var create 			= function(request, response){
 			     }, {transaction : transaction})
 			]);
 		}).then(function(mesa){
-			mesa.forEach(function(item){
-				item['dataValues'].maquinaestado = "/maquinaestado/" + item['dataValues'].maquinaestadoid;
-				delete item['dataValues'].maquinaestadoid;
+			mesas.forEach(function(mesa){
+				mesa['dataValues'].pedido = "/mesa/" + mesa['dataValues'].mesaid + "/pedido";
+				mesa['dataValues'].maquinaestado = "/maquinaestado/" + mesa['dataValues'].maquinaestadoid;
+				delete mesa['dataValues'].maquinaestadoid;
 			})
-			response.jsonp(mesa);
+			response.jsonp(mesas);
 		}).catch(function(error){
 			response.status(500).send({response : error});
 		});
@@ -74,6 +77,7 @@ var updateAll 		= function(request, response){
 			} else {
 				transaction.commit();
 				mesa.findById(request.body.mesaid).then(function(mesa){
+					mesa['dataValues'].pedido = "/mesa/" + mesa['dataValues'].mesaid + "/pedido";
 					mesa['dataValues'].maquinaestado = "/maquinaestado/" + mesa['dataValues'].maquinaestadoid;
 					delete mesa['dataValues'].maquinaestadoid;
 					response.status(200).jsonp(mesa);

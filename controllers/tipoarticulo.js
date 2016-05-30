@@ -13,8 +13,11 @@ var tipoarticulo		= sequelize.import("../models/tiposarticulo");
  * Private Functions 
  * */
 var all 			= function(request, response){
-	tipoarticulo.findAll().then(function(tipoarticulo){
-		response.jsonp(tipoarticulo);
+	tipoarticulo.findAll().then(function(tipoarticulos){
+		tipoarticulos.forEach(function(tipoarticulo){
+			tipoarticulo['dataValues'].articulo = "/tipoarticulo/" + tipoarticulo['dataValues'].tipoarticuloid + '/articulo';
+		});
+		response.jsonp(tipoarticulos);
 	});
 };
 var findById 		= function(request, response){
@@ -22,8 +25,11 @@ var findById 		= function(request, response){
 		where : {
 			tipoarticuloid :  request.params.tipoarticuloid
 		}
-	}).then(function(tipoarticulo){
-		response.jsonp(tipoarticulo);
+	}).then(function(tipoarticulos){
+		tipoarticulos.forEach(function(tipoarticulo){
+			tipoarticulo['dataValues'].articulo = "/tipoarticulo/" + tipoarticulo['dataValues'].tipoarticuloid + '/articulo';
+		});
+		response.jsonp(tipoarticulos);
 	});
 };
 var create 			= function(request, response){

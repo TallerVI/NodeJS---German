@@ -23,17 +23,13 @@ var articulo		= sequelize.import("../models/articulos");
  * */
 var all 			= function(request, response){
 	articulo.findAll().then(function(articulos){
-		if(articulos.length == 0){
-			response.status(400).send({ error : 'Recursos no encontrados' });
-		} else {
-			articulos.forEach(function(articulo){
-				articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-				articulo['dataValues'].tipoarticulo = "/funcion/" + articulo['dataValues'].tipoarticuloid;
-				delete articulo['dataValues'].maquinaestadoid;
-				delete articulo['dataValues'].tipoarticuloid;
-			});
-			response.status(200).jsonp(articulos);	
-		}
+		articulos.forEach(function(articulo){
+			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			delete articulo['dataValues'].maquinaestadoid;
+			delete articulo['dataValues'].tipoarticuloid;
+		});
+		response.status(200).jsonp(articulos);
 	});
 };
 
@@ -43,7 +39,7 @@ var findById 		= function(request, response){
 			response.status(400).send({ error : 'Recurso no encontrado' });
 		} else {
 			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-			articulo['dataValues'].tipoarticulo = "/funcion/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].maquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 			response.status(200).send(articulo);	
@@ -68,7 +64,7 @@ var create 			= function(request, response){
 		} else {
 			var articulo = articulos.pop();
 			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
-			articulo['dataValues'].tipoarticulo = "/funcion/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].estadmaquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 			response.status(200).jsonp(articulo);	
@@ -96,8 +92,8 @@ var updateAll 		= function(request, response){
 			} else {
 				transaction.commit();
 				articulo.findById(request.body.articuloid).then(function(articulo){
-					articulo['dataValues'].estado = "/estado/" + articulo['dataValues'].estadoid;
-					articulo['dataValues'].funcion = "/funcion/" + articulo['dataValues'].funcionid;
+					articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
+					articulo['dataValues'].funcion = "/tipoarticulo/" + articulo['dataValues'].funcionid;
 					delete articulo['dataValues'].estadoid;
 					delete articulo['dataValues'].funcionid;
 					response.status(200).jsonp(articulo);
@@ -129,7 +125,21 @@ var deleteById 		= function(request, response){
 		response.status(500).jsonp(error);
 	});
 };
-
+var findByTipoArticulo = function(request, response){
+	articulo.findAll({
+		where : {
+			tipoarticuloid : request.params.tipoarticuloid
+		}
+	}).then(function(articulos){
+		articulos.forEach(function(articulo){
+			articulo['dataValues'].maquinaestado = "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo = "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			delete articulo['dataValues'].maquinaestadoid;
+			delete articulo['dataValues'].tipoarticuloid;
+		});
+		response.status(200).jsonp(articulos);
+	});
+};
 /**
  * Export functions
  * 
@@ -140,3 +150,4 @@ exports.create 		= create;
 exports.updateAll 	= updateAll;
 exports.updatePart 	= updatePart;
 exports.deleteById 	= deleteById;
+exports.findByTipoArticulo = findByTipoArticulo;

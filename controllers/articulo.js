@@ -26,8 +26,8 @@ var all 			= function(request, response){
 	var h = host.getHost(request, response);
 	articulo.findAll().then(function(articulos){
 		articulos.forEach(function(articulo){
-			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].maquinaestado 	= h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo 	= h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].maquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 		});
@@ -41,8 +41,8 @@ var findById 		= function(request, response){
 		if(articulo == null){
 			response.status(400).send({ error : 'Recurso no encontrado' });
 		} else {
-			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
-			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+			articulo['dataValues'].maquinaestado 	= h + "/maquinaestado/" + articulo['dataValues'].maquinaestadoid;
+			articulo['dataValues'].tipoarticulo 	= h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
 			delete articulo['dataValues'].maquinaestadoid;
 			delete articulo['dataValues'].tipoarticuloid;
 			response.status(200).send(articulo);	
@@ -53,29 +53,33 @@ var findById 		= function(request, response){
 var create 			= function(request, response){
 	var h = host.getHost(request, response);
 	var a = request.body;
-	sequelize.transaction(function(transaction){	
-		return Promise.all([
-	    articulo.create({ 
-	    	descripcion : a.descripcion,
-	    	maquinaestadoid : a.maquinaestadoid,
-	    	tipoarticuloid : a.tipoarticuloid,
-	    	precio : a.precio
-	     	}, {transaction : transaction})
-		]);
-	}).then(function(articulos){
-		if(articulos.length == 0){
-			response.status(500).send({ error : 'Recurso no creado' });
-		} else {
-			var articulo = articulos.pop();
-			articulo['dataValues'].maquinaestado = h + "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
-			articulo['dataValues'].tipoarticulo = h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
-			delete articulo['dataValues'].estadmaquinaestadoid;
-			delete articulo['dataValues'].tipoarticuloid;
-			response.status(200).jsonp(articulo);	
-		}
-	}).catch(function(error){
-		response.status(500).send({response : error});
-	});
+	if("descripcion" in a && "maquinaestadoid" in a && "tipoarticuloid" in a && "precio" in a){
+		sequelize.transaction(function(transaction){	
+			return Promise.all([
+		    articulo.create({ 
+		    	descripcion 	: a.descripcion,
+		    	maquinaestadoid : a.maquinaestadoid,
+		    	tipoarticuloid 	: a.tipoarticuloid,
+		    	precio 			: a.precio
+		     	}, {transaction : transaction})
+			]);
+		}).then(function(articulos){
+			if(articulos.length == 0){
+				response.status(500).send({ error : 'Recurso no creado' });
+			} else {
+				var articulo = articulos.pop();
+				articulo['dataValues'].maquinaestado 	= h + "/maquinaestado/" + articulo['dataValues'].estadmaquinaestadoid;
+				articulo['dataValues'].tipoarticulo 	= h + "/tipoarticulo/" + articulo['dataValues'].tipoarticuloid;
+				delete articulo['dataValues'].estadmaquinaestadoid;
+				delete articulo['dataValues'].tipoarticuloid;
+				response.status(200).jsonp(articulo);	
+			}
+		}).catch(function(error){
+			response.status(500).send({response : error});
+		});
+	} else {
+		response.status(500).jsonp({ error : "No se han enviado los parametros necesarios" });
+	}
 };
 var updateAll 		= function(request, response){
 	var h = host.getHost(request, response);
@@ -83,10 +87,10 @@ var updateAll 		= function(request, response){
 	sequelize.transaction(
 	).then(function(transaction){
 		articulo.update({ 
-		    	descripcion : a.descripcion,
+		    	descripcion 	: a.descripcion,
 		    	maquinaestadoid : a.maquinaestadoid,
-		    	tipoarticuloid : a.tipoarticuloid,
-		    	precio : a.precio
+		    	tipoarticuloid 	: a.tipoarticuloid,
+		    	precio 			: a.precio
 	     	},
 			{ where : { articuloid : request.body.articuloid } }, 
 			{ transaction : transaction }
@@ -149,10 +153,6 @@ var findByTipoArticulo = function(request, response){
 	});
 };
 
-/*
- * 
- *
- */
 /**
  * Export functions
  * 

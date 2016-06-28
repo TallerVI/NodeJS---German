@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     maquinaestadoid: {
       type: DataTypes.INTEGER(11),
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'maquinaestados',
         key: 'maquinaestadoid'
@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     tipoarticuloid: {
       type: DataTypes.INTEGER(11),
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'tiposarticulo',
         key: 'tipoarticuloid'

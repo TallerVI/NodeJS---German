@@ -95,8 +95,36 @@ var updateAll 		= function(request, response){
 };
 var updatePart 		= function(request, response){
 	var h = host.getHost(request, response);
-	response.status(500).jsonp({ response : "Implementar updatePart" });
+	var a = request.body;
+	delete a.__proto__;
+	if(Object.keys(a).length > 0){
+		sequelize.transaction(
+		).then(function(transaction){
+			mesa.update(a,
+				{ where : { mesaid : request.params.mesaid } }, 
+				{ transaction : transaction }
+			).then(function( rowUpdated ){
+				if(rowUpdated.pop() == 0){
+					transaction.rollback();
+					response.status(500).jsonp({ response : "No se ha podido actualizar mesa" });
+				} else {
+					transaction.commit();
+					mesa.findById(request.params.mesaid).then(function(mesa){
+						mesa['dataValues'].pedido = h + "/mesa/" + mesa['dataValues'].mesaid + "/pedido";
+						mesa['dataValues'].maquinaestado = h + "/maquinaestado/" + mesa['dataValues'].maquinaestadoid;
+						delete mesa['dataValues'].maquinaestadoid;
+						response.status(200).jsonp(mesa);
+					});
+				}
+			});
+		}).catch(function(error){
+			response.status(500).jsonp({ error : error });
+		});
+	} else {
+		response.status(500).jsonp({ error : 'Debe enviar parametros para poder actualizar'});
+	}
 };
+
 var deleteById 		= function(request, response){
 	var h = host.getHost(request, response);
 	sequelize.transaction(
